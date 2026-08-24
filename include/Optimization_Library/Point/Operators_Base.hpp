@@ -50,6 +50,11 @@ namespace Optimization_Library {
 				template<std::floating_point U> requires std::convertible_to<U, T>
 				constexpr T operator() (U lhs) const { return static_cast<T>(lhs) / value; }
 			};
+
+			template<std::floating_point T>
+            struct negate {
+                constexpr T operator() (T lhs) const noexcept { return -lhs; }
+            };
 		} // namespace Unary_Operators
 
 		namespace Binary_Operators {

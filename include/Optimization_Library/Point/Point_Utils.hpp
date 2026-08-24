@@ -36,6 +36,20 @@ namespace Optimization_Library {
 	template<std::floating_point T = double, size_t dim>
 	constexpr T norm(const Point<T, dim>& point) noexcept { return std::sqrt(dot(point, point)); }
 
+	template<std::floating_point T = double, size_t dim>
+	constexpr T l1_norm(const Point<T, dim>& point) noexcept {
+		T result = 0;
+		for (const T& number : point) { result += std::abs(number); }
+		return result;
+	}
+
+	template<std::floating_point T = double, size_t dim>
+	constexpr T linf_norm(const Point<T, dim>& point) noexcept {
+		T result = 0;
+		for (const T& number : point) { result = std::max(std::abs(number), result); }
+		return result;
+	}
+
 	template<std::floating_point T, size_t dim>
 	constexpr T dist(const Point<T, dim>& x, const Point<T, dim>& y) noexcept { return norm(x - y); }
 

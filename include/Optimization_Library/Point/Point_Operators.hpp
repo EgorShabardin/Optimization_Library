@@ -27,7 +27,7 @@ namespace Optimization_Library {
 	template <std::floating_point T, std::floating_point U, size_t dim>
 	constexpr auto operator + (T lhs, const Point<U, dim>& rhs) noexcept { return rhs + lhs; }
 
-	template <std::floating_point T = double, std::floating_point U = double, size_t dim>
+	template <std::floating_point T, std::floating_point U, size_t dim>
 	constexpr Point<T, dim>& operator += (Point<T, dim>& lhs, U rhs) noexcept {
 		std::transform(lhs.begin(), lhs.end(), lhs.begin(), Point_Operators::Unary_Operators::plus<T>{rhs});
 		return lhs;
@@ -60,6 +60,13 @@ namespace Optimization_Library {
 		using R = std::common_type_t<T, U>;
 		Point<R, dim> result;
 		std::transform(rhs.begin(), rhs.end(), result.begin(), [lhs](const U& val) { return static_cast<R>(lhs - val); });
+		return result;
+	}
+
+	template <std::floating_point T, size_t dim>
+	constexpr auto operator - (const Point<T, dim>& lhs) noexcept {
+		Point<T, dim> result;
+		std::transform(lhs.begin(), lhs.end(), result.begin(), Point_Operators::Unary_Operators::negate<T>{});
 		return result;
 	}
 

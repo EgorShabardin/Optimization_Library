@@ -45,7 +45,8 @@ namespace Optimization_Library {
         constexpr Point(Args... args) noexcept : RawPoint<T, dim>{static_cast<T>(args)...} {}
 
 		constexpr Point (std::initializer_list<T> values_list) noexcept {
-			std::copy_n(values_list.begin(), std::min(values_list.size(), dim), this->begin());
+			auto iter = std::copy_n(values_list.begin(), std::min(values_list.size(), dim), this->begin());
+			if (iter != this->end()) { std::fill(iter, this->end(), T(0)); }
 		}
 
 		constexpr explicit Point (T value) noexcept { this->fill(value); }
