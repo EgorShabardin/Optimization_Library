@@ -9,7 +9,7 @@ namespace Optimization_Library {
 	template<std::floating_point T = double, size_t dim = 1>
 	struct PointValue {
 		Point<T, dim> point;
-		T value;
+		T value {0};
 
 		constexpr PointValue() noexcept = default;
 		constexpr PointValue(const PointValue&) noexcept = default;
@@ -24,12 +24,12 @@ namespace Optimization_Library {
 		constexpr PointValue(Point<T, dim>&& point, T value) noexcept : point{std::move(point)}, value{value} {}
 
 		template<typename Function>
-		static constexpr PointValue<T, dim> Compute_Value(const Point<T, dim>& point, Function&& function) {
+		static constexpr PointValue<T, dim> FromFunction(const Point<T, dim>& point, Function&& function) {
 			return PointValue {point, std::forward<Function>(function)(point)};
 		}
 
 		template<typename Function>
-		static constexpr PointValue<T, dim> Compute_Value(const RawPoint<T, dim>& point, Function&& function) {
+		static constexpr PointValue<T, dim> FromFunction(const RawPoint<T, dim>& point, Function&& function) {
 			return PointValue {Point<T, dim>(point), std::forward<Function>(function)(point)};
 		}
 
