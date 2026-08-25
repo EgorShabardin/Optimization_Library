@@ -59,4 +59,9 @@ namespace Optimization_Library {
 		if (n > 0) { return point / n; }
 		return point;
 	}
+
+	template<std::floating_point T, size_t dim>
+	constexpr bool is_approx (const Point<T, dim>& lhs, const Point<T, dim>& rhs, T eps = static_cast<T>(1e-9)) {
+		return dot(lhs - rhs, lhs - rhs) <= (eps * eps);
+	}
 } // namespace Optimization_Library
