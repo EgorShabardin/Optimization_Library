@@ -1,6 +1,8 @@
-#pragma once
+module;
 
 #include <concepts>
+
+export module Point;
 
 /*
    * Optimization_Library - Point Module
@@ -10,21 +12,26 @@
 */
 
 
-#include "Point/Point_Base.hpp"           // Core structure
-#include "Point/Operators_Base.hpp"       // Internal functors
-#include "Point/Point_Operators.hpp"      // Mathematical operators
-#include "Point/Point_Utils.hpp"          // Basic utilities
+export import :Point_Base;           // Core structure
+export import :Operators_Base;       // Internal functors
+export import :Point_Operators;      // Mathematical operators
+export import :Point_Utils;          // Basic utilities
 
-namespace Optimization_Library {
+export namespace Optimization_Library {
+
     template<std::floating_point T = double>
     using Point1D = Point<T, 1>;
     using Point1D_d = Point1D<double>;
+    using Point1D_f = Point1D<float>;
 
     template<std::floating_point T = double>
     using Point2D = Point<T, 2>;
     using Point2D_d = Point2D<double>;
+    using Point2D_f = Point2D<float>;
 
     template<std::floating_point T = double>
     using Point3D = Point<T, 3>;
     using Point3D_d = Point3D<double>;
+    using Point3D_f = Point3D<float>;
+
 } // namespace Optimization_Library
