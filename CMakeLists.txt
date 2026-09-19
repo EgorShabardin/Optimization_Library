@@ -9,6 +9,12 @@ option(BUILD_TESTING "Build the test suite" ON)
 add_library(Optimization_Library STATIC)
 add_library(Optimization_Library::Optimization_Library ALIAS Optimization_Library)
 
+target_include_directories(Optimization_Library
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Optimization_Library>
+        $<INSTALL_INTERFACE:include>
+)
+
 target_sources(Optimization_Library
     PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -17,6 +23,9 @@ target_sources(Optimization_Library
             include/Optimization_Library/Point/Operators_Base.cppm
             include/Optimization_Library/Point/Point_Operators.cppm
             include/Optimization_Library/Point/Point_Utils.cppm
+            include/Optimization_Library/PointValue.cppm
+            include/Optimization_Library/PointValue/PointValue_Base.cppm
+            include/Optimization_Library/PointValue/PointValue_Utils.cppm
 )
 
 target_compile_features(Optimization_Library PUBLIC cxx_std_20)

@@ -13,7 +13,7 @@ export module Point;
 
 
 export import :Point_Base;           // Core structure
-export import :Operators_Base;       // Internal functors
+import :Operators_Base;              // Internal functors
 export import :Point_Operators;      // Mathematical operators
 export import :Point_Utils;          // Basic utilities
 

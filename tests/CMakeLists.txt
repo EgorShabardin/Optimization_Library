@@ -8,4 +8,5 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 include(Catch)
 
-add_subdirectory(Points_Tests)
+add_subdirectory(Point_Tests)
+add_subdirectory(PointValue_Tests)

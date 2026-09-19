@@ -1,9 +1,11 @@
 module;
 
+#include <type_traits>
+#include <functional>
 #include <algorithm>
 #include <concepts>
 #include <numeric>
-#include <ostream>
+#include <cstddef>
 #include <limits>
 #include <cmath>
 
@@ -14,59 +16,53 @@ import :Point_Base;
 
 export namespace Optimization_Library {
 
-	template<std::floating_point T, size_t dim, typename Stream>
-	auto& operator << (Stream& os, const Point<T, dim>& point) {
+	template<std::floating_point T, std::size_t dim, typename Stream>
+	requires requires(Stream& os, T val) { os << val; }
+	Stream& operator << (Stream& os, const Point<T, dim>& point) {
 		os << '(' << point[0];
-		for (size_t i = 1; i != dim; ++i) { os << ", " << point[i]; }
+		for (std::size_t i = 1; i != dim; ++i) { os << ", " << point[i]; }
 		os << ')';
 
 		return os;
 	}
 
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] constexpr T dot(const Point<T, dim>& x, const Point<T, dim>& y) noexcept {
-		return std::transform_reduce(x.begin(), x.end(), y.begin(), T(0));
+	template <std::floating_point T, std::floating_point U, std::size_t dim>
+	[[nodiscard]] constexpr auto dot(const Point<T, dim>& first_point, const Point<U, dim>& second_point) noexcept {
+		using R = std::common_type_t<T, U>;
+		return std::transform_reduce(first_point.begin(), first_point.end(), second_point.begin(), static_cast<R>(0));
 	}
 
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] constexpr T sum(const Point<T, dim>& point) noexcept { return std::accumulate(point.begin(), point.end(), T(0)); }
-
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] constexpr T max(const Point<T, dim>& point) noexcept { return *std::max_element(point.begin(), point.end()); }
-
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] constexpr T min(const Point<T, dim>& point) noexcept { return *std::min_element(point.begin(), point.end()); }
-
-	template<std::floating_point T, size_t dim>
+	template<std::floating_point T, std::size_t dim>
 	[[nodiscard]] T norm_l1(const Point<T, dim>& point) noexcept {
-		T result = 0;
-		for (const T& number : point) { result += std::abs(number); }
-		return result;
+		return std::transform_reduce(point.begin(), point.end(), static_cast<T>(0), std::plus<T>{}, [](const T val) { return std::abs(val); });
 	}
 
-	template<std::floating_point T, size_t dim>
+	template<std::floating_point T, std::size_t dim>
 	[[nodiscard]] T norm_l2(const Point<T, dim>& point) noexcept { return std::sqrt(dot(point, point)); }
 
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] T norm_inf(const Point<T, dim>& point) noexcept {
-		T result = 0;
-		for (const T& number : point) { result = std::max(std::abs(number), result); }
-		return result;
+	template<std::floating_point T, std::size_t dim>
+	[[nodiscard]] T norm_linf(const Point<T, dim>& point) noexcept {
+		return std::transform_reduce(point.begin(), point.end(), static_cast<T>(0), [](T a, T b) { return std::max(a, b); }, [](const T val) { return std::abs(val); });
 	}
 
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] T dist(const Point<T, dim>& x, const Point<T, dim>& y) noexcept { return norm_l2(x - y); }
+	template <std::floating_point T, std::floating_point U, std::size_t dim>
+	[[nodiscard]] auto dist(const Point<T, dim>& first_point, const Point<U, dim>& second_point) noexcept {
+		return norm_l2(first_point - second_point);
+	}
 
-	template<std::floating_point T, size_t dim>
+	template<std::floating_point T, std::size_t dim>
 	[[nodiscard]] Point<T, dim> normalize (const Point<T, dim>& point) noexcept {
-		const T n = norm_l2(point);
-		if (n > std::numeric_limits<T>::epsilon()) { return point / n; }
+		const T point_norm = norm_l2(point);
+		if (point_norm > std::numeric_limits<T>::epsilon() * 1e3) { return point / point_norm; }
 		return point;
 	}
 
-	template<std::floating_point T, size_t dim>
-	[[nodiscard]] constexpr bool is_approx (const Point<T, dim>& lhs, const Point<T, dim>& rhs, T eps = static_cast<T>(1e-9)) noexcept {
-		const Point<T, dim> diff = lhs - rhs;
+	template <std::floating_point T, std::floating_point U, std::size_t dim>
+	[[nodiscard]] constexpr bool is_approx (const Point<T, dim>& lhs, const Point<U, dim>& rhs,
+		std::common_type_t<T, U> eps = std::numeric_limits<std::common_type_t<T, U>>::epsilon() * 1e3) noexcept {
+
+		using R = std::common_type_t<T, U>;
+		const Point<R, dim> diff = lhs - rhs;
 		return dot(diff, diff) <= (eps * eps);
 	}
 
