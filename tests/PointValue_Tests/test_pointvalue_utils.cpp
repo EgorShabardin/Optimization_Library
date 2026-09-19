@@ -1,68 +1,99 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <type_traits>
+#include <iostream>
 #include <utility>
 
-import PointValue;
 import Point;
+import PointValue;
 
 using namespace Optimization_Library;
+using Catch::Matchers::WithinAbs;
 
-TEST_CASE("PointValue_Utils - Testing comparison operators", "[pointvalue][utils][comparisons]") {
-    SECTION("Comparison operators (<, <=, >, >=, ==, !=) based on value for double") {
-        PointValue<double, 2> pointvalue_small{Point<double, 2>{1.0, 2.0}, 10.0};
-        PointValue<double, 2> pointvalue_equal{Point<double, 2>{5.0, 6.0}, 10.0};
-        PointValue<double, 2> pointvalue_large{Point<double, 2>{0.0, 0.0}, 25.0};
+TEMPLATE_TEST_CASE("PointValue_Utils - Output operator to the stream", "[pointvalue][utils][stream]", double, float, long double) {
+    SECTION("Outputting a pointvalue with a dimension greater than 1 to the stream") {
+        const PointValue<TestType, 5> pointvalue(Point<TestType, 5>(1.2, 3.3, 1.5, 6.3, -5.3), -3.1);
+        std::ostringstream stream;
+        stream << pointvalue;
 
-        REQUIRE(pointvalue_small < pointvalue_large);
-        REQUIRE(pointvalue_large > pointvalue_small);
-        REQUIRE_FALSE(pointvalue_large < pointvalue_small);
-        REQUIRE_FALSE(pointvalue_small > pointvalue_large);
-
-        REQUIRE(pointvalue_small <= pointvalue_large);
-        REQUIRE(pointvalue_small <= pointvalue_equal);
-        REQUIRE(pointvalue_large >= pointvalue_small);
-        REQUIRE(pointvalue_equal >= pointvalue_small);
-
-        REQUIRE(pointvalue_small == pointvalue_equal);
-        REQUIRE(pointvalue_small != pointvalue_large);
-        REQUIRE_FALSE(pointvalue_small == pointvalue_large);
-        REQUIRE_FALSE(pointvalue_small != pointvalue_equal);
+        REQUIRE(stream.str() == "{(1.2, 3.3, 1.5, 6.3, -5.3), -3.1}");
+        REQUIRE(&(stream << pointvalue) == &stream);
+        REQUIRE_FALSE(stream.str().empty());
     }
 
-    SECTION("Comparison operators for float types") {
-        PointValue<float, 1> first_pointvalue{Point<float, 1>{1.0f}, -5.2f};
-        PointValue<float, 1> second_pointvalue{Point<float, 1>{2.0f}, 3.1f};
+    SECTION("Output to the stream of a pointvalue with a dimension equal to 1") {
+        const PointValue<TestType, 1> pointvalue(Point<TestType, 1>(1.2), -3.1);
+        std::ostringstream stream;
+        stream << pointvalue;
 
-        REQUIRE(first_pointvalue < second_pointvalue);
-        REQUIRE(second_pointvalue > first_pointvalue);
-        REQUIRE(first_pointvalue <= second_pointvalue);
-        REQUIRE(second_pointvalue >= first_pointvalue);
-        REQUIRE(first_pointvalue != second_pointvalue);
+        REQUIRE(stream.str() == "{(1.2), -3.1}");
+        REQUIRE(&(stream << pointvalue) == &stream);
+        REQUIRE_FALSE(stream.str().empty());
     }
 }
 
-TEST_CASE("PointValue_Utils - Testing approximate equality", "[pointvalue][utils][is_approx]") {
-    SECTION("Checking approximate equality within default and custom epsilon") {
-        PointValue<double, 2> pointvalue_base{Point<double, 2>{1.0, 2.0}, 10.0};
-        
-        PointValue<double, 2> pointvalue_identical{Point<double, 2>{1.0, 2.0}, 10.0};
-        REQUIRE(is_approx(pointvalue_base, pointvalue_identical));
+TEMPLATE_PRODUCT_TEST_CASE("PointValue_Utils - Comparison operators", "[pointvalue][utils][comparisons]",
+    std::pair, ((float, float), (float, double), (float, long double), (double, float), (double, double), (double, long double),
+    (long double, float), (long double, double), (long double, long double))) {
 
-        PointValue<double, 2> pointvalue_close{Point<double, 2>{1.0 + 1e-8, 2.0 - 1e-8}, 10.0 + 1e-8};
-        REQUIRE(is_approx(pointvalue_base, pointvalue_close, 1e-6));
+    using TestType1 = typename TestType::first_type;
+    using TestType2 = typename TestType::second_type;
 
-        PointValue<double, 2> pointvalue_diffvalue{Point<double, 2>{1.0, 2.0}, 10.1};
-        REQUIRE_FALSE(is_approx(pointvalue_base, pointvalue_diffvalue, 1e-3));
+    SECTION("The < and <= operators, comparison to the lesser") {
+        const PointValue<TestType1, 2> pointvalue_small{Point<TestType1, 2>{1.0, 2.0}, 10.0};
+        const PointValue<TestType2, 2> pointvalue_large{Point<TestType2, 2>{0.0, 0.0}, 25.0};
 
-        PointValue<double, 2> pointvalue_diffpoint{Point<double, 2>{1.5, 2.0}, 10.0};
-        REQUIRE_FALSE(is_approx(pointvalue_base, pointvalue_diffpoint, 1e-3));
+        REQUIRE(pointvalue_small < pointvalue_large);
+        REQUIRE(pointvalue_small <= pointvalue_large);
+        REQUIRE_FALSE(pointvalue_large < pointvalue_small);
+        REQUIRE_FALSE(pointvalue_large <= pointvalue_small);
     }
 
-    SECTION("Checking is_approx for float types") {
-        PointValue<float, 3> pointvalue_float_base{Point<float, 3>{1.0f, 2.0f, 3.0f}, 5.0f};
-        PointValue<float, 3> pointvalue_float_close{Point<float, 3>{1.00001f, 2.0f, 2.99999f}, 5.00001f};
+    SECTION("The > and >= operators, comparison for more") {
+        const PointValue<TestType1, 2> pointvalue_small{Point<TestType1, 2>{1.0, 2.0}, 10.0};
+        const PointValue<TestType2, 2> pointvalue_large{Point<TestType2, 2>{0.0, 0.0}, 25.0};
 
-        REQUIRE(is_approx(pointvalue_float_base, pointvalue_float_close, 1e-4f));
+        REQUIRE(pointvalue_large > pointvalue_small);
+        REQUIRE(pointvalue_large >= pointvalue_small);
+        REQUIRE_FALSE(pointvalue_small > pointvalue_large);
+        REQUIRE_FALSE(pointvalue_small >= pointvalue_large);
+    }
+
+    SECTION("The < and <= operators, comparison for equality") {
+        const PointValue<TestType1, 2> first_pointvalue{Point<TestType1, 2>{1.0, 2.0}, 10.0};
+        const PointValue<TestType2, 2> second_pointvalue{Point<TestType2, 2>{0.0, 0.0}, 10.0};
+
+        REQUIRE(first_pointvalue >= second_pointvalue);
+        REQUIRE(first_pointvalue <= second_pointvalue);
+        REQUIRE(second_pointvalue >= first_pointvalue);
+        REQUIRE(second_pointvalue <= first_pointvalue);
+    }
+}
+
+TEMPLATE_PRODUCT_TEST_CASE("PointValue_Utils - Approximate equality", "[pointvalue][utils][approx]",
+    std::pair, ((float, float), (float, double), (float, long double), (double, float), (double, double), (double, long double),
+    (long double, float), (long double, double), (long double, long double))) {
+
+    using TestType1 = typename TestType::first_type;
+    using TestType2 = typename TestType::second_type;
+
+    SECTION("Comparison of identical pointvalue") {
+        const PointValue<TestType1, 3> first_pointvalue(Point<TestType1, 3>(1.0, 2.0, 3.0), 1.2);
+        const PointValue<TestType1, 3> second_pointvalue(Point<TestType1, 3>(1.0, 2.0, 3.0), 1.2);
+        REQUIRE(is_approx(first_pointvalue, second_pointvalue));
+    }
+
+    SECTION("Comparison of identical points with different values") {
+        const PointValue<TestType1, 3> first_pointvalue(Point<TestType1, 3>(1.0, 2.0, 3.0), 5.4);
+        const PointValue<TestType1, 3> second_pointvalue(Point<TestType1, 3>(1.0, 2.0, 3.0), 1.2);
+        REQUIRE_FALSE(is_approx(first_pointvalue, second_pointvalue));
+    }
+
+    SECTION("Comparison of different points with the same values") {
+        const PointValue<TestType1, 3> first_pointvalue(Point<TestType1, 3>(1.5, 2.2, 4.7), 5.4);
+        const PointValue<TestType1, 3> second_pointvalue(Point<TestType1, 3>(3.0, 5.0, 8.9), 5.4);
+        REQUIRE_FALSE(is_approx(first_pointvalue, second_pointvalue));
     }
 }

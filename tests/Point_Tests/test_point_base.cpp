@@ -236,7 +236,7 @@ TEMPLATE_TEST_CASE("Point_Base - Aliases for points", "[point][aliases]", double
         REQUIRE(point.dimensions == 1);
     }
 
-    SECTION("Aliase Point1D_d") {
+    SECTION("Aliase Point1D_f") {
         Point1D_f point(4.4f);
         static_assert(std::is_same_v<typename decltype(point)::value_type, float>);
         REQUIRE(point.dimensions == 1);
@@ -248,13 +248,13 @@ TEMPLATE_TEST_CASE("Point_Base - Aliases for points", "[point][aliases]", double
         REQUIRE(point.dimensions == 2);
     }
 
-    SECTION("Aliase Point1D_d") {
+    SECTION("Aliase Point2D_d") {
         Point2D_d point(4.4, 5.3);
         static_assert(std::is_same_v<typename decltype(point)::value_type, double>);
         REQUIRE(point.dimensions == 2);
     }
 
-    SECTION("Aliase Point1D_d") {
+    SECTION("Aliase Point2D_f") {
         Point2D_f point(4.4f, 5.3f);
         static_assert(std::is_same_v<typename decltype(point)::value_type, float>);
         REQUIRE(point.dimensions == 2);
@@ -266,13 +266,13 @@ TEMPLATE_TEST_CASE("Point_Base - Aliases for points", "[point][aliases]", double
         REQUIRE(point.dimensions == 3);
     }
 
-    SECTION("Aliase Point1D_d") {
+    SECTION("Aliase Point3D_d") {
         Point3D_d point(4.4, 5.3, 1.2);
         static_assert(std::is_same_v<typename decltype(point)::value_type, double>);
         REQUIRE(point.dimensions == 3);
     }
 
-    SECTION("Aliase Point1D_d") {
+    SECTION("Aliase Point3D_f") {
         Point3D_f point(4.4f, 5.3f, 1.2f);
         static_assert(std::is_same_v<typename decltype(point)::value_type, float>);
         REQUIRE(point.dimensions == 3);

@@ -1,6 +1,7 @@
 add_executable(pointvalue_tests
     test_pointvalue_base.cpp
     test_pointvalue_utils.cpp
+    compile_pointvalue_tests.cpp
 )
 
 target_link_libraries(pointvalue_tests

@@ -2,7 +2,7 @@ add_executable(point_tests
     test_point_base.cpp
     test_point_operators.cpp
     test_point_utils.cpp
-    compile_tests.cpp
+    compile_point_tests.cpp
 )
 
 target_link_libraries(point_tests
